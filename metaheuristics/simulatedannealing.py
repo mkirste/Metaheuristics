@@ -11,10 +11,11 @@ Log = namedtuple("Log", "best_fitness candidate_fitness")
 class SimulatedAnnealing(Algorithm):
     def __init__(
         self,
+        problem,
         param_max_number_iterations,
         param_iteration_logging=False,
     ):
-        super().__init__(param_max_number_iterations, param_iteration_logging)
+        super().__init__(problem, param_max_number_iterations, param_iteration_logging)
         self._temperature = 1
         self._solution = None  # Candidate tuple (solution, fitness)
 
@@ -33,17 +34,20 @@ class SimulatedAnnealing(Algorithm):
 
         return self._solution.solution
 
+    def algorithm_name(self):
+        return "SimulatedAnnealing"
+
     # Basic algorithm steps
     def initialize(self):
         """Initialize start solution"""
         start_solution = self.create_start_solution()
-        start_fitness = self.fitness(start_solution)
+        start_fitness = self.solution_fitness(start_solution)
         self._solution = Candidate(start_solution, start_fitness)
 
     def select_candidate(self, candidate):
         """Select candidate"""
         new_solution = self.create_random_neighbor(candidate.solution)
-        new_fitness = self.fitness(new_solution)
+        new_fitness = self.solution_fitness(new_solution)
         new_candidate = Candidate(new_solution, new_fitness)
 
         if (new_candidate.fitness > candidate.fitness):
@@ -85,5 +89,5 @@ class SimulatedAnnealing(Algorithm):
 
     @abstractmethod
     def create_random_neighbor(self, solution):
-        """Create start solution [returns solution]"""
+        """Create random neighbor [returns solution]"""
         pass

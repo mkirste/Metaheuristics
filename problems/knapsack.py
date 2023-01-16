@@ -1,58 +1,56 @@
 import numpy as np
+from problems.problem import Problem
 
 
-class KnapsackProblem:
-    def __init__(self, bag_size, items, solution):
-        if items.ndim != 2:
-            raise ValueError("Items must be an array with two dimensions!")
-        if items.shape[0] != 2:
-            raise ValueError("Length of first dimension of items must be 2!")
-        if items.shape[1] != solution.size:
-            raise ValueError(
-                "Length of second dimension of items must be the same as length of solution!")
-        self._data_bag_size = bag_size
-        self._data_items = items  # [weights, values; items]
-        self._solution = solution  # [items]
+# data["values"]     [items] (nd.array 1dim float)
+# data["weights"]    [items] (nd.array 1dim float)
+# data["bag_size"]           (float)
+# solution           [items] (nd.array 1dim integer 0,1)
+
+
+class KnapsackProblem(Problem):
+    def __init__(self, data, solution):
+        super().__init__(data, solution)
 
     @classmethod
     def create_new_random(cls, number_items=100, average_number_items_bag=10):
-        bag_size = average_number_items_bag * 50  # average number items
-        items = np.random.rand(2, number_items) * 100
-        items = np.around(items, decimals=0)
+        data = {}
+
+        data["values"] = np.random.rand(number_items) * 100
+        data["values"] = np.around(data["values"], decimals=0)
+
+        data["weights"] = np.random.rand(number_items) * 100
+        data["weights"] = np.around(data["weights"], decimals=0)
+
+        data["bag_size"] = average_number_items_bag * 50
+
         solution = np.zeros(number_items)
-        return KnapsackProblem(bag_size, items, solution)
+
+        return KnapsackProblem(data, solution)
 
     # Getters
     def get_number_items(self):
         """Get number of items"""
-        return self._data_items[1].size
+        return self._data["values"].size
 
-    def get_data(self):
-        """Get data"""
-        return self._data_items, self._data_bag_size
+    # Functions (general) [implementations]
+    def check_data_solution(self, data, solution):
+        if data["values"].ndim != 1:
+            raise ValueError("Values must be an array with one dimension!")
+        if data["weights"].ndim != 1:
+            raise ValueError("Weights must be an array with one dimension!")
+        if data["values"].size != data["weights"].size:
+            raise ValueError("Length of values and weights must be same!")
+        if data["values"].size != solution.size:
+            raise ValueError(
+                "Length of values must be the same as length of solution!")
+        return True
 
-    def get_solution(self):
-        """Get solution"""
-        return self._solution
-
-    def set_solution(self, solution):
-        """Set new solution"""
-        if self._data_items.shape[1] != solution.size:
-            raise ValueError("Solution must contain excatly same number as number of items ({})!".format(
-                self._data_items.shape[1]))
-        self._solution = solution
-
-    # Functions
-    def calculate_value(self):
-        """Calculate value"""
-        return self._data_items[1].dot(self._solution)
-
-    def calculate_weight(self):
-        """Calculate weight"""
-        return self._solution.dot(self._data_items[0])
-
-    def check_weight_restriction(self, weight):
-        return weight <= self._data_bag_size
+    def check_new_solution(self, solution):
+        if self._solution.size != solution.size:
+            raise ValueError("New solution must contain excatly same number of items ({})!".format(
+                self._solution.size))
+        return True
 
     def calculate_fitness(self):
         """Calculate fitness"""
@@ -67,3 +65,16 @@ class KnapsackProblem:
         """Check if solution is feasible"""
         weight = self.calculate_weight()
         return self.check_weight_restriction(weight)
+
+    # Functions (problem specific)
+    def calculate_value(self):
+        """Calculate value of solution"""
+        return self._data["values"].dot(self._solution)
+
+    def calculate_weight(self):
+        """Calculate weight of solution"""
+        return self._solution.dot(self._data["weights"])
+
+    def check_weight_restriction(self, weight):
+        """Calculate weight restriction of solution"""
+        return weight <= self._data["bag_size"]

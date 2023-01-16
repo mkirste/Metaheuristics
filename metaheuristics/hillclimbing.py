@@ -9,16 +9,17 @@ Log = namedtuple("Log", "best_fitness candidate_fitness")
 class HillClimbing(Algorithm):
     def __init__(
         self,
+        problem,
         param_max_number_iterations,
         param_iteration_logging=False,
     ):
-        super().__init__(param_max_number_iterations, param_iteration_logging)
+        super().__init__(problem, param_max_number_iterations, param_iteration_logging)
         self._solution = None  # Candidate tuple (solution, fitness)
 
     # Algorithm
     def algorithm(self):
         """Algorithm [returns best solution]"""
-        self.initialize()  # create start soluation
+        self.initialize()  # create start solution
 
         candidate = self._solution  # Candidate tuple (solution, fitness)
         update = True
@@ -34,11 +35,14 @@ class HillClimbing(Algorithm):
 
         return self._solution.solution
 
+    def algorithm_name(self):
+        return "HillClimbing"
+
     # Basic algorithm steps
     def initialize(self):
         """Initialize start solution"""
         start_solution = self.create_start_solution()
-        start_fitness = self.fitness(start_solution)
+        start_fitness = self.solution_fitness(start_solution)
         self._solution = Candidate(start_solution, start_fitness)
 
     def create_candidates(self, candidate):
@@ -51,7 +55,7 @@ class HillClimbing(Algorithm):
         for candidate in candidates:
             if (candidate.fitness == None):  # calculate fitness
                 candidate = Candidate(candidate.solution,
-                                      self.fitness(candidate.solution))
+                                      self.solution_fitness(candidate.solution))
             if (best_candidate == None or candidate.fitness > best_candidate.fitness):
                 best_candidate = candidate
 
@@ -74,12 +78,12 @@ class HillClimbing(Algorithm):
         super().log_iteration(log)
 
     # Domain specific functions
-    @abstractmethod
+    @ abstractmethod
     def create_start_solution(self):
         """Create start solution [returns solution]"""
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def create_neighborhood(self, solution):
         """Create neighborhood for current solution [returns list of solutions]"""
         return None

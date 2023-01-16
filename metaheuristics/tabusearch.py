@@ -9,11 +9,12 @@ Log = namedtuple("Log", "best_fitness candidate_fitness")
 class TabuSearch(Algorithm):
     def __init__(
         self,
+        problem,
         param_max_size_tabulist,
         param_max_number_iterations,
         param_iteration_logging=False,
     ):
-        super().__init__(param_max_number_iterations, param_iteration_logging)
+        super().__init__(problem, param_max_number_iterations, param_iteration_logging)
         self._param_max_size_tabulist = param_max_size_tabulist
         self._tabulist = []
         self._solution = None  # Candidate tuple (solution, fitness)
@@ -36,11 +37,14 @@ class TabuSearch(Algorithm):
 
         return self._solution.solution
 
+    def algorithm_name(self):
+        return "TabuSearch"
+
     # Basic algorithm steps
     def initialize(self):
         """Initialize start solution"""
         start_solution = self.create_start_solution()
-        start_fitness = self.fitness(start_solution)
+        start_fitness = self.solution_fitness(start_solution)
         self._solution = Candidate(start_solution, start_fitness)
 
     def create_candidates(self, candidate):
@@ -54,7 +58,7 @@ class TabuSearch(Algorithm):
             if (self.get_solution_representation(candidate) not in self._tabulist):
                 if (candidate.fitness == None):  # calculate fitness
                     candidate = Candidate(
-                        candidate.solution, self.fitness(candidate.solution))
+                        candidate.solution, self.solution_fitness(candidate.solution))
                 if (best_candidate == None or candidate.fitness > best_candidate.fitness):
                     best_candidate = candidate
 

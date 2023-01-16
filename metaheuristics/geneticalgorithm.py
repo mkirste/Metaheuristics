@@ -9,11 +9,12 @@ Log = namedtuple("Log", "best_fitness average_fitness")
 class GeneticAlgorithm(Algorithm):
     def __init__(
         self,
+        problem,
         param_population_size,
         param_max_number_iterations,
         param_iteration_logging=False,
     ):
-        super().__init__(param_max_number_iterations, param_iteration_logging)
+        super().__init__(problem, param_max_number_iterations, param_iteration_logging)
         self._param_population_size = param_population_size
         self._population = []  # list of individuals (i.e. solutions)
 
@@ -29,9 +30,13 @@ class GeneticAlgorithm(Algorithm):
             self.log_iteration()
 
         self._population = sorted(
-            self._population, key=lambda x: -self.fitness(x)
+            self._population, key=lambda x: -self.solution_fitness(x)
         )
+
         return self._population[0]
+
+    def algorithm_name(self):
+        return "GeneticAlgorithm"
 
     # Basic algorithm steps
     def initialize(self):
@@ -42,7 +47,7 @@ class GeneticAlgorithm(Algorithm):
     def selection(self):
         """Select part of population"""
         self._population = sorted(
-            self._population, key=lambda x: -self.fitness(x)
+            self._population, key=lambda x: -self.solution_fitness(x)
         )
         self._population = self._population[:self._param_population_size//2]
 
@@ -61,7 +66,8 @@ class GeneticAlgorithm(Algorithm):
     def log_iteration(self):
         """Create log"""
         if self._param_iteration_logging:  # Case logging
-            population_fitness = [self.fitness(i) for i in self._population]
+            population_fitness = [self.solution_fitness(
+                i) for i in self._population]
             best_fitness = max(population_fitness)
             average_fitness = sum(population_fitness) / len(population_fitness)
             log = Log(best_fitness, average_fitness)

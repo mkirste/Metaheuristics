@@ -1,48 +1,90 @@
 import numpy as np
 from problems.knapsack import KnapsackProblem
-from examples.hillclimbing_knapsack import HillClimbingForKnapsack
-from examples.tabusearch_knapsack import TabuSearchForKnapsack
-from examples.simulatedannealing_knapsack import SimulatedAnnealingForKnapsack
-from examples.geneticalgorithm_knapsack import GeneticAlgorithmForKnapsack
+from examples.knapsack_hillclimbing import HillClimbingForKnapsack
+from examples.knapsack_tabusearch import TabuSearchForKnapsack
+from examples.knapsack_simulatedannealing import SimulatedAnnealingForKnapsack
+from examples.knapsack_geneticalgorithm import GeneticAlgorithmForKnapsack
+from problems.travelingsalesman import TravelingSalesmanProblem
+from examples.travelingsalesman_hillclimbing import HillClimbingForTravelingSalesman
+from examples.travelingsalesman_tabusearch import TabuSearchForTravelingSalesman
+from examples.travelingsalesman_simulatedannealing import SimulatedAnnealingForTravelingSalesman
+from examples.travelingsalesman_geneticalgorithm import GeneticAlgorithmForTravelingSalesman
 
-test_problem = KnapsackProblem.create_new_random(25, 5)  # 100, 25
+
+def print_result(title, start_fitness, results):
+    """Print result"""
+    header_format = "|{:^20}|{:^14}|{:^13}|{:^15}|"
+    row_format = "| {:<18} | {:>12} | {:>11.4f} | {:>13.6f} |"
+    divider_format = "|{:-^20}|{:-^14}|{:-^13}|{:-^15}|"
+
+    print("|{:-^65}|".format(""))
+    print("|{:^65}|".format(title))
+    print(divider_format.format("", "", "", ""))
+    print(header_format.format(
+        "Algorithm", "best fitness",  "improvement", "runtime (sec)"))
+    print(divider_format.format("", "", "", ""))
+
+    for result in results:
+        if result.get_best_solution() != None:
+            fitness = result.get_best_solution()["fitness"]
+            improvement = fitness if start_fitness == 0 else abs(
+                fitness / start_fitness - 1)
+            print(row_format.format(result.algorithm_name(),
+                                    fitness, improvement, result.get_runtime()))
+
+    print(divider_format.format("", "", "", ""))
+    print("")
+
+
+"""
+# KnapsackProblem
+problem = KnapsackProblem.create_new_random(10, 4)
+problem.set_solution(np.around(np.random.rand(10)))
+problem.set_solution(np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))
+print("data:", problem.get_data())
+print("solution:", problem.get_solution())
+print("value:", problem.calculate_value())
+print("weight:", problem.calculate_weight())
+"""
+
+# KnapsackProblem Optimization
+problem = KnapsackProblem.create_new_random(25, 5)  # 100, 25
+start_fitness = problem.calculate_fitness()
 logging = False
+
+hc = HillClimbingForKnapsack(problem, 100, logging)
+ts = TabuSearchForKnapsack(problem, 10, 100, logging)
+sa = SimulatedAnnealingForKnapsack(problem, 10000, logging)
+ga = GeneticAlgorithmForKnapsack(problem, 0.02, 50, 100, logging)
+algorithms = [hc, ts, sa, ga]
+for algorithm in algorithms:
+    algorithm.start()
+    pass
+
+print_result("Knapsack Optimization", start_fitness, algorithms)
+
+
 """
-test_problem.set_solution(np.around(np.random.rand(10)))
-test_problem.set_solution(np.array([1,1,1,0,0,0,0,0,0,0]))
-print("data:", test_problem.get_data())
-print("solution:", test_problem.get_solution())
-print("weight:", test_problem.calculate_weight())
-print("value:", test_problem.calculate_value())
+# TravelingSalesmanProblem
+problem = TravelingSalesmanProblem.create_new_random(4)
+problem.set_solution([0, 1, 2, 3, 0])
+problem.is_feasible()
+print(problem.get_data())
+print(problem.calculate_traveldistance())
 """
 
-# HillClimbing
-hc = HillClimbingForKnapsack(test_problem, 100, logging)
-hc_solution = hc.start()
-test_problem.set_solution(hc_solution)
-hc_fitness = test_problem.calculate_fitness()
+# TravelingSalesman Optimization
+problem = TravelingSalesmanProblem.create_new_random(25)  # 100, 25
+start_fitness = problem.calculate_fitness()
+logging = False
 
-# TabuSearch
-ts = TabuSearchForKnapsack(test_problem, 10, 100, logging)
-ts_solution = ts.start()
-test_problem.set_solution(ts_solution)
-ts_fitness = test_problem.calculate_fitness()
+hc = HillClimbingForTravelingSalesman(problem, 100, logging)
+ts = TabuSearchForTravelingSalesman(problem, 10, 100, logging)
+sa = SimulatedAnnealingForTravelingSalesman(problem, 10000, logging)
+ga = GeneticAlgorithmForTravelingSalesman(problem, 0.02, 50, 100, logging)
+algorithms = [hc, ts, sa, ga]
+for algorithm in algorithms:
+    algorithm.start()
+    pass
 
-# SimulatedAnnealing
-sa = SimulatedAnnealingForKnapsack(test_problem, 5000, logging)
-sa_solution = sa.start()
-test_problem.set_solution(sa_solution)
-sa_fitness = test_problem.calculate_fitness()
-
-# GeneticAlgorithm
-ga = GeneticAlgorithmForKnapsack(test_problem, 0.02, 20, 100, logging)
-ga_solution = ga.start()
-test_problem.set_solution(ga_solution)
-ga_fitness = test_problem.calculate_fitness()
-
-
-print("Algorithm: best fitness (duration)")
-print("HillClimbing: {} ({} sec)".format(hc_fitness, hc.get_runtime()))
-print("TabuSearch: {} ({} sec)".format(ts_fitness, ts.get_runtime()))
-print("SimulatedAnnealing: {} ({} sec)".format(sa_fitness, sa.get_runtime()))
-print("GeneticAlgorithm: {} ({} sec)".format(ga_fitness, ga.get_runtime()))
+print_result("Knapsack TravelingSalesman", start_fitness, algorithms)
