@@ -1,6 +1,6 @@
 # Metaheuristics
 
-Implementation of metaheuristics and problems in python
+Implementation of metaheuristics and optimization problems in python
 
 ## Metaheuristics
 - Hill Climbing
