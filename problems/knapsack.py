@@ -21,6 +21,7 @@ class KnapsackProblem(Problem):
 
         data["weights"] = np.random.rand(number_items) * 100
         data["weights"] = np.around(data["weights"], decimals=0)
+        data["weights"][data["weights"] == 0] = 1
 
         data["bag_size"] = average_number_items_bag * 50
 
@@ -42,21 +43,23 @@ class KnapsackProblem(Problem):
         if data["values"].size != data["weights"].size:
             raise ValueError("Length of values and weights must be same!")
         if data["values"].size != solution.size:
-            raise ValueError(
-                "Length of values must be the same as length of solution!")
+            raise ValueError("Length of values must be the same as length of solution!")
         return True
 
     def check_new_solution(self, solution):
         if self._solution.size != solution.size:
-            raise ValueError("New solution must contain excatly same number of items ({})!".format(
-                self._solution.size))
+            raise ValueError(
+                "New solution must contain excatly same number of items ({})!".format(
+                    self._solution.size
+                )
+            )
         return True
 
     def calculate_fitness(self):
         """Calculate fitness"""
         weight = self.calculate_weight()
         fitness = self.calculate_value()
-        if (self.check_weight_restriction(weight)):
+        if self.check_weight_restriction(weight):
             return fitness
         else:
             return -weight

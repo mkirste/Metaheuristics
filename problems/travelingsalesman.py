@@ -15,11 +15,11 @@ class TravelingSalesmanProblem(Problem):
 
         data["distances"] = np.random.rand(number_items, number_items) * 100
         data["distances"] = np.around(data["distances"], decimals=0)
+        data["distances"][data["distances"] == 0] = 1
         # [i,i] = 0
         np.fill_diagonal(data["distances"], 0)
         # [i,j] = [j,i]
-        data["distances"] = data["distances"] * \
-            np.tri(number_items, number_items, -1)
+        data["distances"] = data["distances"] * np.tri(number_items, number_items, -1)
         data["distances"] = data["distances"] + np.transpose(data["distances"])
 
         solution = []
@@ -38,25 +38,29 @@ class TravelingSalesmanProblem(Problem):
     def check_data_solution(self, data, solution):
         if data["distances"].shape[0] != data["distances"].shape[1]:
             raise ValueError(
-                "Length of first dimension of distances must be same as second dimension!")
+                "Length of first dimension of distances must be same as second dimension!"
+            )
 
     def check_new_solution(self, solution):
         invalid_indices = list(
-            filter(lambda x: x > self.get_number_items() - 1, solution))
+            filter(lambda x: x > self.get_number_items() - 1, solution)
+        )
         return len(invalid_indices) == 0
 
     def calculate_fitness(self):
         """Calculate fitness"""
-        if (self.is_feasible()):
-            return -self.calculate_traveldistance()
+        if self.is_feasible():
+            return (
+                1 / self.calculate_traveldistance()
+            )  # -self.calculate_traveldistance()
         else:
-            return -np.inf
+            return 0  # -np.inf
 
     def is_feasible(self):
         """Check if solution is feasible"""
         return self.check_restrictions()
 
-   # Functions (problem specific)
+    # Functions (problem specific)
     def calculate_traveldistance(self):
         """Calculate travel distance"""
         costs = 0
@@ -67,15 +71,15 @@ class TravelingSalesmanProblem(Problem):
         return costs
 
     def check_restrictions(self):
-        if (len(self._solution) - 1 != self.get_number_items()):
+        if len(self._solution) - 1 != self.get_number_items():
             return False  # number of visits
 
-        if (self._solution[0] != 0 or self._solution[-1]):
+        if self._solution[0] != 0 or self._solution[-1] != 0:
             return False  # start and end in city 0
 
         required_cities = set(range(1, self.get_number_items()))
         visited_cities = set(self._solution[1:-1])
-        if (len(required_cities - visited_cities) != 0):
+        if len(required_cities - visited_cities) != 0:
             return False  # all cities visited
 
         return True

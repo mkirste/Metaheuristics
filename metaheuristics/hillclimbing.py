@@ -23,13 +23,12 @@ class HillClimbing(Algorithm):
 
         candidate = self._solution  # Candidate tuple (solution, fitness)
         update = True
-        while (self.termination() == False and update == True):
-            candidates = self.create_candidates(
-                candidate)  # create candidate list
+        while self.termination() == False and update == True:
+            candidates = self.create_candidates(candidate)  # create candidate list
             candidate = self.select_candidate(
-                candidate, candidates)  # select best candidate
-            update = self.update_solution(
-                candidate)  # detect new best solution
+                candidate, candidates
+            )  # select best candidate
+            update = self.update_solution(candidate)  # detect new best solution
             self.update_iteration_counter()
             self.log_iteration(candidate)
 
@@ -47,26 +46,29 @@ class HillClimbing(Algorithm):
 
     def create_candidates(self, candidate):
         """Create candidates (returns list (solution, fitness) tuple)"""
-        return [Candidate(s, None) for s in self.create_neighborhood(candidate.solution)]
+        return [
+            Candidate(s, None) for s in self.create_neighborhood(candidate.solution)
+        ]
 
     def select_candidate(self, candidate, candidates):
         """Select best candidate"""
         best_candidate = None
         for candidate in candidates:
-            if (candidate.fitness == None):  # calculate fitness
-                candidate = Candidate(candidate.solution,
-                                      self.solution_fitness(candidate.solution))
-            if (best_candidate == None or candidate.fitness > best_candidate.fitness):
+            if candidate.fitness == None:  # calculate fitness
+                candidate = Candidate(
+                    candidate.solution, self.solution_fitness(candidate.solution)
+                )
+            if best_candidate == None or candidate.fitness > best_candidate.fitness:
                 best_candidate = candidate
 
-        if (best_candidate != None):
+        if best_candidate != None:
             return best_candidate
         else:
             return candidate
 
     def update_solution(self, candidate):
-        """Update best solution [returns True if new best solution, otherweise False]"""
-        if (candidate.fitness > self._solution.fitness):
+        """Update best solution [returns True if new best solution, otherwise False]"""
+        if candidate.fitness > self._solution.fitness:
             self._solution = candidate
             return True
         else:
@@ -78,12 +80,12 @@ class HillClimbing(Algorithm):
         super().log_iteration(log)
 
     # Domain specific functions
-    @ abstractmethod
+    @abstractmethod
     def create_start_solution(self):
         """Create start solution [returns solution]"""
         pass
 
-    @ abstractmethod
+    @abstractmethod
     def create_neighborhood(self, solution):
         """Create neighborhood for current solution [returns list of solutions]"""
         return None

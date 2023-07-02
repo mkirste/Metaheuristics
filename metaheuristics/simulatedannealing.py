@@ -50,27 +50,32 @@ class SimulatedAnnealing(Algorithm):
         new_fitness = self.solution_fitness(new_solution)
         new_candidate = Candidate(new_solution, new_fitness)
 
-        if (new_candidate.fitness > candidate.fitness):
+        if new_candidate.fitness > candidate.fitness:
             return new_candidate
         else:
-            if (candidate.fitness != 0):
+            if candidate.fitness != 0:
                 probability = math.exp(
-                    (new_candidate.fitness - candidate.fitness) / abs(candidate.fitness) / self._temperature)
-                if (np.random.random() <= probability):
+                    (new_candidate.fitness - candidate.fitness)
+                    / abs(candidate.fitness)
+                    / self._temperature
+                )
+                if np.random.random() <= probability:
                     return new_candidate
         return candidate
 
     def update_temperature(self):
         end_temperature = 0.001  # start_temperature is 1
         proportion_iterations = (
-            self._iteration_counter + 1) / self._param_max_number_iterations
-        self._temperature = 1 - (1 - end_temperature) * \
-            (proportion_iterations)  # linear
+            self._iteration_counter + 1
+        ) / self._param_max_number_iterations
+        self._temperature = 1 - (1 - end_temperature) * (
+            proportion_iterations
+        )  # linear
         # self._temperature = 1 * end_temperature**(proportion_iterations) # multiplicative
 
     def update_solution(self, candidate):
-        """Update best solution [returns True if new best solution, otherweise False]"""
-        if (candidate.fitness > self._solution.fitness):
+        """Update best solution [returns True if new best solution, otherwise False]"""
+        if candidate.fitness > self._solution.fitness:
             self._solution = candidate
             return True
         else:

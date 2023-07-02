@@ -26,10 +26,10 @@ class TabuSearch(Algorithm):
 
         candidate = self._solution  # Candidate tuple (solution, fitness)
         while self.termination() == False:
-            candidates = self.create_candidates(
-                candidate)  # create candidate list
+            candidates = self.create_candidates(candidate)  # create candidate list
             candidate = self.select_candidate(
-                candidate, candidates)  # select best candidate
+                candidate, candidates
+            )  # select best candidate
             self.update_tabulist(candidate)  # update tabu list
             self.update_solution(candidate)  # detect new best solution
             self.update_iteration_counter()
@@ -49,20 +49,23 @@ class TabuSearch(Algorithm):
 
     def create_candidates(self, candidate):
         """Create candidates (returns list (solution, fitness) tuple)"""
-        return [Candidate(s, None) for s in self.create_neighborhood(candidate.solution)]
+        return [
+            Candidate(s, None) for s in self.create_neighborhood(candidate.solution)
+        ]
 
     def select_candidate(self, candidate, candidates):
         """Select best candidate"""
         best_candidate = None
         for candidate in candidates:
-            if (self.get_solution_representation(candidate) not in self._tabulist):
-                if (candidate.fitness == None):  # calculate fitness
+            if self.get_solution_representation(candidate) not in self._tabulist:
+                if candidate.fitness == None:  # calculate fitness
                     candidate = Candidate(
-                        candidate.solution, self.solution_fitness(candidate.solution))
-                if (best_candidate == None or candidate.fitness > best_candidate.fitness):
+                        candidate.solution, self.solution_fitness(candidate.solution)
+                    )
+                if best_candidate == None or candidate.fitness > best_candidate.fitness:
                     best_candidate = candidate
 
-        if (best_candidate != None):
+        if best_candidate != None:
             return best_candidate
         else:
             return candidate
@@ -70,12 +73,12 @@ class TabuSearch(Algorithm):
     def update_tabulist(self, candidate):
         """Update candidate list"""
         self._tabulist.append(self.get_solution_representation(candidate))
-        if (len(self._tabulist) > self._param_max_size_tabulist):
+        if len(self._tabulist) > self._param_max_size_tabulist:
             self._tabulist.pop(0)
 
     def update_solution(self, candidate):
-        """Update best solution [returns True if new best solution, otherweise False]"""
-        if (candidate.fitness > self._solution.fitness):
+        """Update best solution [returns True if new best solution, otherwise False]"""
+        if candidate.fitness > self._solution.fitness:
             self._solution = candidate
             return True
         else:
